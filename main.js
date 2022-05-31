@@ -117,18 +117,19 @@ class Detector {
           if (url.indexOf("api.opensea.io") > -1) {
             keys.add(request_headers["x-api-key"]);
           }
-          console.log("Response: " + request.url(), response.remoteAddress);
+          // console.log("Response: " + request.url(), response.remoteAddress);
           // let content = await response.text();
           // console.log("Response: " + request.url(), content);
         } catch (e) {}
       } else {
-        //   console.log("Response: " + request.url(), response.headers());
+          // console.log("Response: " + request.url(), headers["content-type"]);
       }
     });
 
-    // page.on("requestfinished", (request) => {
-    //   console.log(request.url());
-    // });
+    page.on("request", (request) => {
+      // console.log("request", request.url());
+    });
+
     const preloadFile = fs.readFileSync("./metamask.js", "utf8");
     await page.evaluateOnNewDocument(preloadFile);
     try {

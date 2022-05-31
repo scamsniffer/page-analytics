@@ -33,7 +33,7 @@ async function test() {
     // "https://merch-azuki.com/",
     // "https://goblin-town.wtf/",
     // "https://colourscats.netlify.app/?utm_source=icy.tools",
-    "https://gobllntown.com",
+    "https://boki.gift",
   ];
 
   // await detectPage("https://merch-azuki.com/");
