@@ -53,8 +53,10 @@ class Detector {
     const keys = new Set();
 
     let activeTime = Date.now();
+    let closeReason = null
 
-    function allDone() {
+    function allDone(type = 'unknown') {
+      closeReason = type;
       doneLock && doneLock();
       waitTimer && clearTimeout(waitTimer);
     }
@@ -102,7 +104,7 @@ class Detector {
             }
             if (pageActions.length) {
               setTimeout(() => {
-                allDone();
+                allDone('hasPageAction');
               }, 1000)
             }
           } catch (e) {
@@ -120,10 +122,13 @@ class Detector {
         try {
           const url = request.url();
           const request_headers = request.headers();
-          let content = await response.json();
+          let content = await response.text();
           requests.push({
             url,
-            content,
+            content:
+              content.length > 1000
+                ? JSON.stringify([content.slice(0, 500)])
+                : JSON.parse(content),
             remoteAddress: response.remoteAddress(),
           });
           if (url.indexOf("api.opensea.io") > -1) {
@@ -162,17 +167,17 @@ class Detector {
     page.on("close", () => {
       console.log("page closed");
       isClosed = true;
-      allDone();
+      allDone('pageClosed');
     });
 
-    const idleThreshold = 8 * 1000;
+    const idleThreshold = 10 * 1000;
     console.log("listen idle");
     (function activeWatch() {
       const interval = Date.now() - activeTime;
       // console.log(interval);
       if (interval > idleThreshold && doneLock) {
         console.log("close", doneLock);
-        allDone();
+        allDone("idleReach");
         return;
       }
       setTimeout(activeWatch, 800);
@@ -181,7 +186,9 @@ class Detector {
     await new Promise((resolve) => {
       console.log("wait");
       doneLock = resolve;
-      waitTimer = setTimeout(resolve, this.timeout * 1000);
+      waitTimer = setTimeout(() => {
+        allDone('reachTimeOut')
+      }, this.timeout * 1000);
     });
 
     if (!isClosed) {
@@ -191,6 +198,7 @@ class Detector {
     // await browser.close();
 
     return {
+      closeReason,
       spend: Date.now() - startTime,
       pageUrl,
       methods: Array.from(methods),
