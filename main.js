@@ -21,7 +21,7 @@ class Detector {
       // executablePath: "/usr/bin/google-chrome",
       // headless: false,
     },
-    timeout = 60
+    timeout = 35
   ) {
     this.opts = opts;
     this.browser = null;
@@ -153,7 +153,7 @@ class Detector {
       allDone();
     });
 
-    const idleThreshold = 15 * 1000;
+    const idleThreshold = 8 * 1000;
     console.log("listen idle");
     (function activeWatch() {
       const interval = Date.now() - activeTime;
