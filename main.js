@@ -15,25 +15,30 @@ const targetAddress = {
 };
 
 class Detector {
-
-  constructor() {
-    this.browser = null;
-  }
-
-  async init() {
-    if (this.browser) return
-    this.running = 0
-    this.browser = await puppeteer.launch({
+  constructor(
+    opts = {
       args: ["--disable-dev-shm-usage", "--no-sandbox"],
       // executablePath: "/usr/bin/google-chrome",
       // headless: false,
-    });
+    },
+    timeout = 60
+  ) {
+    this.opts = opts;
+    this.browser = null;
+    this.timeout = timeout;
+  }
+
+  async init() {
+    if (this.browser) return;
+    this.running = 0;
+    this.browser = await puppeteer.launch(this.opts);
   }
 
   async detectPage(pageUrl) {
-    if (this.running > 5) return {
-      error: 'reach limit'
-    }
+    if (this.running > 5)
+      return {
+        error: "reach limit",
+      };
     this.running++;
     const page = await this.browser.newPage();
 
@@ -43,7 +48,7 @@ class Detector {
     const pageActions = [];
     const hackerAddress = new Set();
     const uniqueActions = new Set();
-    const requests = []
+    const requests = [];
     const methods = new Set();
     const keys = new Set();
 
@@ -100,23 +105,22 @@ class Detector {
       const headers = response.headers();
       const isJson = headers["content-type"] === "application/json";
       if (isJson) {
-          try {
-            const url = request.url();
-            const request_headers = request.headers();
-            let content = await response.json();
-            requests.push({
-              url,
-              content,
-              remoteAddress: response.remoteAddress(),
-            });
-            if (url.indexOf("api.opensea.io") > -1) {
-              keys.add(request_headers["x-api-key"]);
-            }
-            console.log("Response: " + request.url(), response.remoteAddress);
-
-            // let content = await response.text();
-            // console.log("Response: " + request.url(), content);
-          } catch (e) {}
+        try {
+          const url = request.url();
+          const request_headers = request.headers();
+          let content = await response.json();
+          requests.push({
+            url,
+            content,
+            remoteAddress: response.remoteAddress(),
+          });
+          if (url.indexOf("api.opensea.io") > -1) {
+            keys.add(request_headers["x-api-key"]);
+          }
+          console.log("Response: " + request.url(), response.remoteAddress);
+          // let content = await response.text();
+          // console.log("Response: " + request.url(), content);
+        } catch (e) {}
       } else {
         //   console.log("Response: " + request.url(), response.headers());
       }
@@ -136,25 +140,25 @@ class Detector {
       await page.close();
       this.running--;
       return {
-        error: e.toString()
+        error: e.toString(),
       };
     }
 
-    let isClosed = false
+    let isClosed = false;
 
-    page.on('close', () => {
-      console.log('closed')
-      isClosed = true
+    page.on("close", () => {
+      console.log("page closed");
+      isClosed = true;
       allDone();
     });
 
-    const idleThreshold = 8 * 1000;
-    console.log('listen idle');
+    const idleThreshold = 15 * 1000;
+    console.log("listen idle");
     (function activeWatch() {
       const interval = Date.now() - activeTime;
       // console.log(interval);
       if (interval > idleThreshold && doneLock) {
-        // console.log("close", doneLock);
+        console.log("close", doneLock);
         allDone();
         return;
       }
@@ -162,9 +166,9 @@ class Detector {
     })();
 
     await new Promise((resolve) => {
-      console.log('wait')
+      console.log("wait");
       doneLock = resolve;
-      waitTimer = setTimeout(resolve, 60 * 1000);
+      waitTimer = setTimeout(resolve, this.timeout * 1000);
     });
 
     if (!isClosed) {

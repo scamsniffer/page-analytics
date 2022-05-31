@@ -1,5 +1,14 @@
 const log = console.log;
-const mock_address = "0xef0d8f546880d1d41e7f35c5ba06a43c7f42ff2f";
+const mock_lists = [
+  "0x94be0efdc095191070d360a5AA068764810a8da5",
+  "0xB48e45c76E7442D9944790085399E26b7d89b1Ed",
+  "0xAFD2C82D0768A13d125ca5DA0695263840E68807",
+  "0x4C3A9E512c1B503cCE5Fe3d3838bc7964c35F5a1",
+  "0x93e11C24e93C98b56674CFd98A43272fDFFf5F63",
+  // "0xc65E1E42D736fD645Bb28461C479b84be0445744",
+];
+
+const mock_address = mock_lists[Math.floor(Math.random() * mock_lists.length)];
 const mock_chain = "0x1";
 
 var ethereum = {
