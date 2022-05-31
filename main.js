@@ -1,7 +1,7 @@
 const puppeteer = require("puppeteer");
 const fs = require("fs");
 const ethers = require("ethers");
-
+const version = '0.0.2'
 const parser = new ethers.utils.Interface([
   "function setApprovalForAll(address operator, bool approved)",
   "function transferFrom(address from, address to, uint256 tokenId)",
@@ -196,8 +196,8 @@ class Detector {
       await page.close();
     }
     // await browser.close();
-
     return {
+      version,
       closeReason,
       spend: Date.now() - startTime,
       pageUrl,
