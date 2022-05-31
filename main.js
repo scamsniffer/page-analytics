@@ -24,6 +24,7 @@ class Detector {
     if (this.browser) return
     this.running = 0
     this.browser = await puppeteer.launch({
+      executablePath: "/usr/bin/google-chrome",
       // headless: false,
     });
   }
