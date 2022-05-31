@@ -1,4 +1,4 @@
-FROM node:14-slim
+FROM node:10.15
 
 RUN apt-get update && apt-get install -y wget --no-install-recommends \
   && wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - \
@@ -13,18 +13,12 @@ RUN apt-get update && apt-get install -y wget --no-install-recommends \
 ADD https://github.com/Yelp/dumb-init/releases/download/v1.2.0/dumb-init_1.2.0_amd64 /usr/local/bin/dumb-init
 RUN chmod +x /usr/local/bin/dumb-init
 
-# Install your app here...
-WORKDIR /usr/src/app
-
-COPY . ./
+WORKDIR /app
+COPY . .
 
 RUN npm install
 RUN npm install puppeteer
-
 EXPOSE 8080
-
-ENV HOST=0.0.0.0
-ENV PORT=8080
 
 ENTRYPOINT ["dumb-init", "--"]
 CMD npm run start

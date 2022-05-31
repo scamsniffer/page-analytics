@@ -24,7 +24,7 @@ class Detector {
     if (this.browser) return
     this.running = 0
     this.browser = await puppeteer.launch({
-      args: ["--disable-dev-shm-usage"],
+      args: ["--disable-dev-shm-usage", "--no-sandbox"],
       // executablePath: "/usr/bin/google-chrome",
       // headless: false,
     });
