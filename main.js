@@ -72,7 +72,7 @@ class Detector {
           ["eth_sendTransaction", "eth_estimateGas"].indexOf(arg2.method) > -1
         ) {
           const transaction = arg2.params[0];
-          console.log(transaction);
+          // console.log(transaction);
           try {
             if (!transaction.data && transaction.value) {
               uniqueActions.add("transferETH");
@@ -165,18 +165,17 @@ class Detector {
     let isClosed = false;
 
     page.on("close", () => {
-      console.log("page closed");
+      if (isClosed) return
       isClosed = true;
       allDone('pageClosed');
     });
 
     const idleThreshold = 10 * 1000;
-    console.log("listen idle");
     (function activeWatch() {
       const interval = Date.now() - activeTime;
       // console.log(interval);
       if (interval > idleThreshold && doneLock) {
-        console.log("close", doneLock);
+        // console.log("close", doneLock);
         allDone("idleReach");
         return;
       }
@@ -193,6 +192,7 @@ class Detector {
 
     if (!isClosed) {
       this.running--;
+      isClosed = true
       await page.close();
     }
     // await browser.close();
