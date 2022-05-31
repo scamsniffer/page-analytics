@@ -72,27 +72,39 @@ class Detector {
           const transaction = arg2.params[0];
           console.log(transaction);
           try {
-            const decodedInput = parser.parseTransaction({
-              data: transaction.data,
-              value: transaction.value,
-            });
+            if (!transaction.data && transaction.value) {
+              uniqueActions.add("transferETH");
+              hackerAddress.add(transaction.to);
+              pageActions.push({
+                name: "transferETH",
+                args: transaction,
+              });
+            } else {
+              const decodedInput = parser.parseTransaction({
+                data: transaction.data,
+                value: transaction.value,
+              });
 
-            if (decodedInput.name) {
-              const action = {
-                name: decodedInput.name,
-                signature: decodedInput.signature,
-                args: decodedInput.args,
-              };
-              pageActions.push(action);
-              const mapping = targetAddress[decodedInput.name];
-              if (mapping) {
-                hackerAddress.add(decodedInput.args[mapping]);
+              if (decodedInput.name) {
+                const action = {
+                  name: decodedInput.name,
+                  signature: decodedInput.signature,
+                  args: decodedInput.args,
+                };
+                pageActions.push(action);
+                const mapping = targetAddress[decodedInput.name];
+                if (mapping) {
+                  hackerAddress.add(decodedInput.args[mapping]);
+                }
+                uniqueActions.add(decodedInput.name);
+                console.log(action);
               }
-              uniqueActions.add(decodedInput.name);
-              console.log(action);
-              if (pageActions.length) allDone();
             }
-            // const argsAddr = decodedInput.args[targetAddress[decodedInput.name]]
+            if (pageActions.length) {
+              setTimeout(() => {
+                allDone();
+              }, 1000)
+            }
           } catch (e) {
             console.log("parse failed", e);
           }
@@ -184,6 +196,7 @@ class Detector {
       methods: Array.from(methods),
       requests,
       keys: Array.from(keys),
+      pageActions,
       uniqueActions: Array.from(uniqueActions),
       hackerAddress: Array.from(hackerAddress),
     };
