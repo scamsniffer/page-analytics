@@ -1,27 +1,30 @@
-FROM node:lts-alpine
+FROM node:14-slim
 
-RUN apk update && apk add --no-cache nmap && \
-    echo @edge http://nl.alpinelinux.org/alpine/edge/community >> /etc/apk/repositories && \
-    echo @edge http://nl.alpinelinux.org/alpine/edge/main >> /etc/apk/repositories && \
-    apk update && \
-    apk add --no-cache \
-      chromium \
-      harfbuzz \
-      "freetype>2.8" \
-      ttf-freefont \
-      nss
+RUN apt-get update && apt-get install -y wget --no-install-recommends \
+  && wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - \
+  && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
+  && apt-get update \
+  && apt-get install -y google-chrome-unstable fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst ttf-freefont libxtst6 libxss1 \
+  --no-install-recommends \
+  && rm -rf /var/lib/apt/lists/* \
+  && apt-get purge --auto-remove -y curl \
+  && rm -rf /src/*.deb
 
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+ADD https://github.com/Yelp/dumb-init/releases/download/v1.2.0/dumb-init_1.2.0_amd64 /usr/local/bin/dumb-init
+RUN chmod +x /usr/local/bin/dumb-init
 
 # Install your app here...
 WORKDIR /usr/src/app
 
 COPY . ./
-RUN yarn
+
+RUN npm install
+RUN npm install puppeteer
 
 EXPOSE 8080
 
 ENV HOST=0.0.0.0
 ENV PORT=8080
 
-CMD [ "yarn", "start" ]
+ENTRYPOINT ["dumb-init", "--"]
+CMD npm run start
