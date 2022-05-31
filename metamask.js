@@ -125,42 +125,52 @@ window.ethereum = new Proxy(ethereum, {
 });
 
 let onOneMatch = false;
+let clicked = false
 
 function clickBtnByText(names = ["connect"]) {
   let matched = 0;
   let btns = Array.from(document.querySelectorAll("button")).concat(
-    document.querySelectorAll(".web3modal-provider-container")
+    Array.from(document.querySelectorAll(".web3modal-provider-container")),
+    Array.from(document.querySelectorAll("a")),
+    Array.from(document.querySelectorAll("div")).filter(
+      (_) => _.innerText.trim() === "Connect"
+    )
   );
   let isLink = false;
-  if (!btns.length) {
-    btns = Array.from(document.querySelectorAll("a"));
-    isLink = true;
-  }
+  // if (!btns.length) {
+  //   btns = Array.from(document.querySelectorAll("a"));
+  //   isLink = true;
+  // }
 
+  sendLog(`btns: ${btns.length}, isLink: ${isLink}`);
   if (btns.length) {
     for (let index = 0; index < btns.length; index++) {
       const btn = btns[index];
-
       if (isLink) {
         if (btn.getAttribute("href") != null) {
           continue;
         }
       }
+      sendLog(btn.innerText);
       const isMatch = names.find(
         (name) =>
           btn.innerText && btn.innerText.toLowerCase().indexOf(name) > -1
       );
       if (isMatch) {
         matched++;
-        sendLog("click btn", name);
+        sendLog("click btn "+ name);
         setTimeout(() => {
           btn.click();
+          clicked = true
+          sendLog("clicked");
         });
       }
     }
     if (matched === 0) {
       setTimeout(() => {
         btns[0].click();
+        clicked = true;
+        sendLog("clicked");
       });
     }
   } else {
@@ -170,7 +180,10 @@ function clickBtnByText(names = ["connect"]) {
 
 window.onload = () => {
   sendLog("autoConnect");
-  clickBtnByText(["connect", "get", "mint"]);
+  clickBtnByText(["connect", "get", "mint", "i understand"]);
+  if (!clicked) {
+    // log('no one')
+  }
   setTimeout(() => {
     clickBtnByText(["claim", "connect", "metamask"]);
   }, 1000);
