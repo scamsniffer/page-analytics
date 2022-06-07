@@ -1,10 +1,35 @@
 const ethers = require("ethers");
 const { Detector } = require('./main')
-// const parser = new ethers.utils.Interface([
-//   "function setApprovalForAll(address operator, bool approved)",
-//   "function transferFrom(address from, address to, uint256 tokenId)",
-//   "function safeTransferFrom(address from, address to, uint256 tokenId)",
-// ]);
+const parser = new ethers.utils.Interface([
+  "function claim(uint256 index, address account, uint256 amount, bytes32[] merkleProof)",
+]);
+
+const user = "0xEf0D8F546880d1D41e7F35c5BA06a43C7F42FF2f";
+
+async function getProof(address) {
+  const req = await fetch(
+    `https://cors.r2d2.to/?https://gateway-backend-mainnet.optimism.io/proof/${address}`
+  );
+  const data = await req.json()
+  return data;
+}
+
+async function genInput(address) {
+  const proof = await getProof(address)
+  return parser.encodeFunctionData("claim", [
+    proof.index,
+    address,
+    proof.amount,
+    proof.proof,
+  ]);
+}
+
+// console.log(parser.encodeFunctionData("claim", [
+//   prof.index,
+//   "0xEf0D8F546880d1D41e7F35c5BA06a43C7F42FF2f",
+//   prof.amount,
+//   prof.proof
+// ]))
 // 0x9fb036532d78b0e3ef4b649d534f1166cbd83ace;
 // data =
 //   "0xa22cb4650000000000000000000000009fb036532d78b0e3ef4b649d534f1166cbd83ace0000000000000000000000000000000000000000000000000000000000000001";
@@ -41,4 +66,4 @@ async function test() {
  console.log(result);
 }
 
-test()
+// test()
