@@ -29,19 +29,22 @@ app.get("/getWhois", async (req, res) => {
 });
 
 const { lookup } = require("./whois");
+const parseRawData = require("./parsed");
 
 app.get("/whois/lookup", async (req, res) => {
   try {
+    const domain = req.query.domain;
     const data = await new Promise((resolve, reject) => {
-      lookup(req.query.domain, (err, data) => {
+      lookup(domain, (err, data) => {
         if (err) {
-          return reject(rtt)
+          return reject(rtt);
         }
         resolve(data);
       });
     })
+    const parsed = parseRawData(data, domain);
     res.json({
-      data,
+      data: parsed,
     });
   } catch (e) {
     console.log("failed", e);

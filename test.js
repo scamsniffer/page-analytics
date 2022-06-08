@@ -70,8 +70,10 @@ async function test() {
 
 
 const { lookup } = require('./whois');
+const parseRawData = require("./parsed");
 
 console.log(lookup);
-lookup('baidu.com', (err, data) => {
-  console.log(err, data)
-})
+lookup("baidu.com", (err, whoisResult) => {
+  const res = parseRawData(whoisResult, "baidu.com");
+  console.log(res);
+});
