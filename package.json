@@ -11,6 +11,7 @@
         "underscore": "^1.12.1",
         "freewhois": "^1.2.2",
         "node-fetch": "2.0.0",
-        "puppeteer": "^14.1.1"
+        "puppeteer": "^14.1.1",
+        "moment": "^2.29.2"
     }
 }
