@@ -67,3 +67,11 @@ async function test() {
 }
 
 // test()
+
+
+const { lookup } = require('./whois');
+
+console.log(lookup);
+lookup('baidu.com', (err, data) => {
+  console.log(err, data)
+})

@@ -28,4 +28,32 @@ app.get("/getWhois", async (req, res) => {
   }
 });
 
+const { lookup } = require("./whois");
+
+app.get("/whois/lookup", async (req, res) => {
+  try {
+    const data = await new Promise((resolve, reject) => {
+      lookup(req.query.domain, (err, data) => {
+        if (err) {
+          return reject(rtt)
+        }
+        resolve(data);
+      });
+    })
+    res.json({
+      data,
+    });
+  } catch (e) {
+    console.log("failed", e);
+    res.json({
+      error: e.toString(),
+    });
+  }
+});
+
+// console.log(lookup);
+// lookup("baidu.com", (err, data) => {
+//   console.log(err, data);
+// });
+
 app.listen(8080)
