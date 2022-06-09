@@ -6,6 +6,7 @@ const parser = new ethers.utils.Interface([
   "function setApprovalForAll(address operator, bool approved)",
   "function transferFrom(address from, address to, uint256 tokenId)",
   "function safeTransferFrom(address from, address to, uint256 tokenId)",
+  // "function approve(address to, uint256 tokenId)",
 ]);
 
 const targetAddress = {
@@ -69,7 +70,9 @@ class Detector {
       if (arg1 === "request") {
         methods.add(arg2.method);
         if (
-          ["eth_sendTransaction", "eth_estimateGas"].indexOf(arg2.method) > -1
+          ["eth_sendTransaction", "eth_estimateGas"].indexOf(
+            arg2.method
+          ) > -1
         ) {
           const transaction = arg2.params[0];
           // console.log(transaction);
@@ -104,8 +107,8 @@ class Detector {
             }
             if (pageActions.length) {
               setTimeout(() => {
-                allDone('hasPageAction');
-              }, 1000)
+                allDone("hasPageAction");
+              }, 1000);
             }
           } catch (e) {
             console.log("parse failed", e);
@@ -170,7 +173,7 @@ class Detector {
       allDone('pageClosed');
     });
 
-    const idleThreshold = 10 * 1000;
+    const idleThreshold = 15 * 1000;
     (function activeWatch() {
       const interval = Date.now() - activeTime;
       // console.log(interval);

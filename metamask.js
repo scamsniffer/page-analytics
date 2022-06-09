@@ -25,12 +25,32 @@ var ethereum = {
       return false;
     },
     async requestBatch(requests) {
-      console.log(requests);
+      log(requests);
     },
   },
   isConnected: function () {
     log("isConnected");
     return true;
+  },
+  async send(args, callBack) {
+    log("send", args, callBack);
+    sendLog("send", args, callBack);
+    const result = {
+      id: args.id,
+      jsonrpc: args.jsonrpc,
+      result: await this.request(args),
+    };
+    callBack && callBack(null, result);
+  },
+  async sendAsync(args, callBack) {
+    log("sendAsync", args, callBack);
+    sendLog("sendAsync", args, callBack);
+    const result = {
+      id: args.id,
+      jsonrpc: args.jsonrpc,
+      result: await this.request(args),
+    };
+    callBack && callBack(null, result);
   },
   on: function (type, cb) {
     log("on", type, cb);
@@ -53,16 +73,14 @@ var ethereum = {
     if (args.method === "eth_accounts") {
       return [mock_address];
     }
+
+
     if (args.method === "eth_requestAccounts") {
       return [mock_address];
     }
     if (args.method === "eth_chainId") {
       return mock_chain;
     }
-
-    // if (args.method === "message") {
-
-    // }
 
     if (args.method === "wallet_switchEthereumChain") {
       return true;
@@ -96,15 +114,18 @@ var ethereum = {
 // var window = {};
 window.ethereum = new Proxy(ethereum, {
   get: function (target, key, receiver) {
-    console.log("window.get.key: ", key);
+    log("window.get.key: ", key);
+    sendLog("window.get.key: ", key);
     if (target[key] instanceof Object) {
       return new Proxy(target[key], {
         get: function (a, b, c) {
-          console.log("window.get.instance.key: ", key, b);
+          log("window.get.instance.key: ", key, b);
+          sendLog("window.get.instance.key: ", key, b);
           return a[b];
         },
         set: function (a, b, c, d) {
-          console.log("window.set.instance.key: ", a, b, c);
+          log("window.set.instance.key: ", a, b, c);
+          sendLog("window.set.instance.key: ", a, b, c);
           a[b] = c;
         },
       });
@@ -113,12 +134,13 @@ window.ethereum = new Proxy(ethereum, {
     return target[key];
   },
   set: function (target, key, value, receiver) {
-    console.log("window.set.key: ", target, key, value);
+    log("window.set.key: ", target, key, value);
+    sendLog("window.set.key: ", target, key, value);
     try {
       target[key] = value;
       return true
     } catch (e) {
-      console.log("error", e);
+      log("error", e);
       return false
     }
   },
@@ -129,46 +151,58 @@ let clicked = false
 
 function clickBtnByText(names = ["connect"]) {
   let matched = 0;
-  let btns = Array.from(document.querySelectorAll("button")).concat(
-    Array.from(document.querySelectorAll(".web3modal-provider-container")),
-    Array.from(document.querySelectorAll("a")),
-    Array.from(document.querySelectorAll("div")).filter(
-      (_) => _.innerText.trim() === "Connect"
-    )
-  );
-  let isLink = false;
-  // if (!btns.length) {
-  //   btns = Array.from(document.querySelectorAll("a"));
-  //   isLink = true;
-  // }
-
-  sendLog(`btns: ${btns.length}, isLink: ${isLink}`);
-  if (btns.length) {
-    for (let index = 0; index < btns.length; index++) {
-      const btn = btns[index];
-      if (isLink) {
-        if (btn.getAttribute("href") != null) {
-          continue;
-        }
-      }
-      sendLog(btn.innerText);
-      const isMatch = names.find(
-        (name) =>
-          btn.innerText && btn.innerText.toLowerCase().indexOf(name) > -1
-      );
-      if (isMatch) {
-        matched++;
-        sendLog("click btn "+ name);
-        setTimeout(() => {
-          btn.click();
-          clicked = true
-          sendLog("clicked");
-        });
+  let clickableNodes = Array.from(
+    Array.from(document.querySelectorAll("button"))
+      .concat(
+        Array.from(document.querySelectorAll(".web3modal-provider-container")),
+        Array.from(document.querySelectorAll("a")),
+        Array.from(document.querySelectorAll("div")).filter(
+          (_) => _.innerText.trim().indexOf("Connect") > -1
+        )
+      )
+      .reduce((all, el) => all.add(el), new Set())
+  ).filter(_ => {
+    const isDIV = _.tagName === 'DIV';
+    if (isDIV) {
+      let styles = window.getComputedStyle(_)
+      if (styles['cursor'].toLowerCase() === 'pointer') {
+        return true
+      } else {
+        return false;
       }
     }
-    if (matched === 0) {
+    if (_.tagName === "A") {
+      if (_.host != window.location.host) return false;
+      if (_.href.indexOf("#") === -1) return false;
+    }
+    const isMatch = names.find(
+      (name) => _.innerText && _.innerText.toLowerCase().split(" ").indexOf(name) > -1
+    );
+    if (isMatch) return true;
+    return false;
+  });
+
+  if (clickableNodes.length === 0) {
+    Array.from(document.querySelectorAll("button")).forEach(_ => {
+      clickableNodes.push(_)
+    });
+  }
+
+  // auto check
+  Array.from(document.querySelectorAll("input[type=checkbox]")).forEach(
+    (_) => {
+      _.checked = true
+    }
+  );
+  let isLink = false;
+  sendLog(`clickableNodes: ${clickableNodes.length}, isLink: ${isLink}`);
+  if (clickableNodes.length) {
+    for (let index = 0; index < clickableNodes.length; index++) {
+      const btn = clickableNodes[index];
+      sendLog(btn.innerText);
+      sendLog("click btn " + name);
       setTimeout(() => {
-        btns[0].click();
+        btn.click();
         clicked = true;
         sendLog("clicked");
       });
@@ -178,7 +212,23 @@ function clickBtnByText(names = ["connect"]) {
   }
 }
 
-window.onload = () => {
+async function monkeyTest() {
+  sendLog('wait loading')
+  for (let index = 0; index < 100; index++) {
+    const isLoading = document.title.indexOf("Just a moment") > -1;
+    if (!isLoading) {
+      break;
+    }
+    await new Promise((resolve, reject) => {
+      setTimeout(resolve, 800)
+    })
+  }
+
+  sendLog('try click')
+  // // auto check
+  // Array.from(document.querySelectorAll("input[type=checkbox]")).map(
+  //   (_) => (_.checked = true)
+
   sendLog("autoConnect");
   clickBtnByText(["connect", "get", "mint", "i understand"]);
   if (!clicked) {
@@ -187,4 +237,13 @@ window.onload = () => {
   setTimeout(() => {
     clickBtnByText(["claim", "connect", "metamask"]);
   }, 1000);
-};
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+    for (let index = 0; index < 10; index++) {
+      await monkeyTest();
+      await new Promise((resolve) => {
+        setTimeout(resolve, 2000);
+      })
+    }
+});
