@@ -8,6 +8,7 @@ const parser = new ethers.utils.Interface([
 ]);
 
 
+console.log(ethers.utils.parseTransaction(`0xf86a018301fbd08255f0943e29dd94f4a128c551cd3750284a26ace7d56b808801634577574754008026a0710d1b778c7b5ce3a9ae959a0ab273931e6a552db4e5644e267d77cb36ef48f5a02359b11f7a9486426c7e7c5c19fb33740803681804731760ae76ac0b5029ad3c`))
 // console.log(parser.encodeFunctionData("claim", [
 //   prof.index,
 //   "0xEf0D8F546880d1D41e7F35c5BA06a43C7F42FF2f",
@@ -53,12 +54,21 @@ async function test() {
     // "https://nft-ftc.com",
     // "https://get-goblin.town/",
     // "http://WeAreAllGoingToDie.WTF",
-    "https://goblin-town.app",
+    // "https://goblin-town.app",
+    // "https://goblintown.live",
+    // "https://goblintown-drop.art/",
+    // "https://bokiworld.art/claim.html",
+    // "https://qobllmtown.wtf",
+    "https://goblin-town.net",
   ];
 
   // await detectPage("https://merch-azuki.com/");
- const result = await instance.detectPage(pageUrls[0]);
- console.log(result);
+  for (let index = 0; index < pageUrls.length; index++) {
+    const url = pageUrls[index];
+    const result = await instance.detectPage(url);
+    console.log(result);
+  }
+
 }
 
 test()

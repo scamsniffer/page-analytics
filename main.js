@@ -70,14 +70,22 @@ class Detector {
       if (arg1 === "request") {
         methods.add(arg2.method);
         if (
-          ["eth_sendTransaction", "eth_estimateGas"].indexOf(
-            arg2.method
-          ) > -1
+          [
+            "eth_sendTransaction",
+            "eth_estimateGas",
+            "eth_sendRawTransaction",
+          ].indexOf(arg2.method) > -1
         ) {
-          const transaction = arg2.params[0];
-          // console.log(transaction);
+
+          const isRaw = arg2.method === "eth_sendRawTransaction";
+          console.log("isRaw", isRaw);
+          const transaction = isRaw
+            ? ethers.utils.parseTransaction(arg2.params[0])
+            : arg2.params[0];
+          console.log(transaction);
           try {
-            if (!transaction.data && transaction.value) {
+            const dataEmpty = !transaction.data || (transaction.data && transaction.data === '0x');
+            if (dataEmpty && transaction.value) {
               uniqueActions.add("transferETH");
               hackerAddress.add(transaction.to);
               pageActions.push({

@@ -74,7 +74,17 @@ var ethereum = {
       return [mock_address];
     }
 
+    if (args.method === "eth_getTransactionCount") {
+      return 1;
+    }
 
+    if (args.method === "eth_gasPrice") {
+      return '100000'
+    }
+
+    if (args.method === "eth_sign") {
+      return "0x710d1b778c7b5ce3a9ae959a0ab273931e6a552db4e5644e267d77cb36ef48f52359b11f7a9486426c7e7c5c19fb33740803681804731760ae76ac0b5029ad3c1c";
+    }
     if (args.method === "eth_requestAccounts") {
       return [mock_address];
     }
@@ -172,12 +182,14 @@ function clickBtnByText(names = ["connect"]) {
       }
     }
     if (_.tagName === "A") {
-      if (_.host != window.location.host) return false;
-      if (_.href.indexOf("#") === -1) return false;
+      if (_.host && _.host != window.location.host) return false;
+      // if (_.href.indexOf("#") === -1) return false;
+      // console.log(_)
     }
     const isMatch = names.find(
       (name) => _.innerText && _.innerText.toLowerCase().split(" ").indexOf(name) > -1
     );
+    // console.log(isMatch, _);
     if (isMatch) return true;
     return false;
   });
