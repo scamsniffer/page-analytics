@@ -59,7 +59,17 @@ async function test() {
     // "https://goblintown-drop.art/",
     // "https://bokiworld.art/claim.html",
     // "https://qobllmtown.wtf",
-    "https://goblin-town.net",
+    // "https://goblin-town.net",
+    // "https://airdropit.org/wagdie.html",
+    // "https://goblintown-drop.art/",
+    // "https://goblin-town.net/",
+    // "https://qobllmtown.wtf/",
+    // "https://chimpersnft.art/",
+    // "https://beginasnothing.art/",
+    // "https://thegoda.live/",
+    // "https://goblintownwft.xyz/",
+    // "https://elftownz.wtf/",
+    "https://goblintown.gift/",
   ];
 
   // await detectPage("https://merch-azuki.com/");

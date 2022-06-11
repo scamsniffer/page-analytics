@@ -1,7 +1,7 @@
 const puppeteer = require("puppeteer");
 const fs = require("fs");
 const ethers = require("ethers");
-const version = '0.0.2'
+const version = "0.0.2";
 const parser = new ethers.utils.Interface([
   "function setApprovalForAll(address operator, bool approved)",
   "function transferFrom(address from, address to, uint256 tokenId)",
@@ -54,9 +54,9 @@ class Detector {
     const keys = new Set();
 
     let activeTime = Date.now();
-    let closeReason = null
+    let closeReason = null;
 
-    function allDone(type = 'unknown') {
+    function allDone(type = "unknown") {
       closeReason = type;
       doneLock && doneLock();
       waitTimer && clearTimeout(waitTimer);
@@ -76,7 +76,6 @@ class Detector {
             "eth_sendRawTransaction",
           ].indexOf(arg2.method) > -1
         ) {
-
           const isRaw = arg2.method === "eth_sendRawTransaction";
           console.log("isRaw", isRaw);
           const transaction = isRaw
@@ -84,7 +83,9 @@ class Detector {
             : arg2.params[0];
           console.log(transaction);
           try {
-            const dataEmpty = !transaction.data || (transaction.data && transaction.data === '0x');
+            const dataEmpty =
+              !transaction.data ||
+              (transaction.data && transaction.data === "0x");
             if (dataEmpty && transaction.value) {
               uniqueActions.add("transferETH");
               hackerAddress.add(transaction.to);
@@ -150,7 +151,7 @@ class Detector {
           // console.log("Response: " + request.url(), content);
         } catch (e) {}
       } else {
-          // console.log("Response: " + request.url(), headers["content-type"]);
+        // console.log("Response: " + request.url(), headers["content-type"]);
       }
     });
 
@@ -160,53 +161,55 @@ class Detector {
 
     const preloadFile = fs.readFileSync("./metamask.js", "utf8");
     await page.evaluateOnNewDocument(preloadFile);
+    let isClosed = false;
     try {
       await page.goto(pageUrl, {
         waitUntil: "networkidle2",
       });
     } catch (e) {
-      // console.log('error', e)
+      isClosed = true;
+      console.log('error', e)
       await page.close();
       this.running--;
-      return {
-        error: e.toString(),
-      };
+      // return {
+      //   error: e.toString(),
+      // };
     }
-
-    let isClosed = false;
-
-    page.on("close", () => {
-      if (isClosed) return
-      isClosed = true;
-      allDone('pageClosed');
-    });
-
-    const idleThreshold = 15 * 1000;
-    (function activeWatch() {
-      const interval = Date.now() - activeTime;
-      // console.log(interval);
-      if (interval > idleThreshold && doneLock) {
-        // console.log("close", doneLock);
-        allDone("idleReach");
-        return;
-      }
-      setTimeout(activeWatch, 800);
-    })();
-
-    await new Promise((resolve) => {
-      console.log("wait");
-      doneLock = resolve;
-      waitTimer = setTimeout(() => {
-        allDone('reachTimeOut')
-      }, this.timeout * 1000);
-    });
 
     if (!isClosed) {
-      this.running--;
-      isClosed = true
-      await page.close();
+      page.on("close", () => {
+        if (isClosed) return;
+        isClosed = true;
+        allDone("pageClosed");
+      });
+
+      const idleThreshold = 15 * 1000;
+      (function activeWatch() {
+        const interval = Date.now() - activeTime;
+        // console.log(interval);
+        if (interval > idleThreshold && doneLock) {
+          // console.log("close", doneLock);
+          allDone("idleReach");
+          return;
+        }
+        setTimeout(activeWatch, 800);
+      })();
+
+      await new Promise((resolve) => {
+        console.log("wait");
+        doneLock = resolve;
+        waitTimer = setTimeout(() => {
+          allDone("reachTimeOut");
+        }, this.timeout * 1000);
+      });
+
+      if (!isClosed) {
+        this.running--;
+        isClosed = true;
+        await page.close();
+      }
+      // await browser.close();
     }
-    // await browser.close();
     return {
       version,
       closeReason,
@@ -228,9 +231,8 @@ class Detector {
 
 // async function detectPage(pageUrl) {
 //   const page = await browser.newPage();
-  
-// }
 
+// }
 
 module.exports = {
   Detector,
@@ -242,7 +244,7 @@ async function test() {
   // const pageUrl = "https://claimkarafuru.xyz/";
   // const pageUrl = "https://merch-azuki.com/";
   const instance = new Detector();
-  await instance.init()
+  await instance.init();
   const pageUrls = [
     // "https://adidas-metaverse.io/",
     // "https://theoddities.xyz/",
@@ -260,7 +262,7 @@ async function test() {
     const pageUrl = pageUrls[index];
     const result = await instance.detectPage(pageUrl);
     // console.log(result);
-    fs.appendFileSync("./data.json", ','+JSON.stringify(result, null, 2));
+    fs.appendFileSync("./data.json", "," + JSON.stringify(result, null, 2));
   }
 }
 

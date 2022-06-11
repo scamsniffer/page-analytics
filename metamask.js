@@ -82,12 +82,17 @@ var ethereum = {
       return '100000'
     }
 
-    if (args.method === "eth_sign") {
+    if (args.method === "eth_sign" || args.method === "personal_sign") {
       return "0x710d1b778c7b5ce3a9ae959a0ab273931e6a552db4e5644e267d77cb36ef48f52359b11f7a9486426c7e7c5c19fb33740803681804731760ae76ac0b5029ad3c1c";
     }
-    if (args.method === "eth_requestAccounts") {
-      return [mock_address];
+
+    if (args.method === "personal_ecRecover") {
+      return mock_address
     }
+
+      if (args.method === "eth_requestAccounts") {
+        return [mock_address];
+      }
     if (args.method === "eth_chainId") {
       return mock_chain;
     }
@@ -159,7 +164,7 @@ window.ethereum = new Proxy(ethereum, {
 let onOneMatch = false;
 let clicked = false
 
-function clickBtnByText(names = ["connect"]) {
+function clickBtnByText(names = ["connect"], connect = false) {
   let matched = 0;
   let clickableNodes = Array.from(
     Array.from(document.querySelectorAll("button"))
@@ -183,13 +188,11 @@ function clickBtnByText(names = ["connect"]) {
     }
     if (_.tagName === "A") {
       if (_.host && _.host != window.location.host) return false;
-      // if (_.href.indexOf("#") === -1) return false;
-      // console.log(_)
     }
     const isMatch = names.find(
       (name) => _.innerText && _.innerText.toLowerCase().split(" ").indexOf(name) > -1
     );
-    // console.log(isMatch, _);
+    // sendLog(_.innerText);
     if (isMatch) return true;
     return false;
   });
@@ -207,12 +210,20 @@ function clickBtnByText(names = ["connect"]) {
     }
   );
   let isLink = false;
+  let connectButtons = clickableNodes.filter((_) =>
+    _.innerText.toLowerCase().split(" ").indexOf('connect')
+  );
+
+  if (connectButtons.length && connect) {
+    sendLog(`connectButtons: ${connectButtons.length}`);
+    // clickableNodes = connectButtons;
+  }
+
   sendLog(`clickableNodes: ${clickableNodes.length}, isLink: ${isLink}`);
   if (clickableNodes.length) {
     for (let index = 0; index < clickableNodes.length; index++) {
       const btn = clickableNodes[index];
-      sendLog(btn.innerText);
-      sendLog("click btn " + name);
+      sendLog("click btn " + btn.innerText);
       setTimeout(() => {
         btn.click();
         clicked = true;
@@ -242,12 +253,12 @@ async function monkeyTest() {
   //   (_) => (_.checked = true)
 
   sendLog("autoConnect");
-  clickBtnByText(["connect", "get", "mint", "i understand"]);
+  clickBtnByText(["connect", "get", "mint", "i understand"], true);
   if (!clicked) {
     // log('no one')
   }
   setTimeout(() => {
-    clickBtnByText(["claim", "connect", "metamask"]);
+    clickBtnByText(["claim", "mint", "connect", "metamask"]);
   }, 1000);
 }
 
