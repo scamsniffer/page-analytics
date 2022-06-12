@@ -65,11 +65,11 @@ async function test() {
     // "https://goblin-town.net/",
     // "https://qobllmtown.wtf/",
     // "https://chimpersnft.art/",
-    // "https://beginasnothing.art/",
+    "https://beginasnothing.art/",
     // "https://thegoda.live/",
     // "https://goblintownwft.xyz/",
     // "https://elftownz.wtf/",
-    "https://goblintown.gift/",
+    // "https://goblintown.gift/",
   ];
 
   // await detectPage("https://merch-azuki.com/");
