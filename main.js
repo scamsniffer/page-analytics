@@ -1,7 +1,7 @@
 const puppeteer = require("puppeteer");
 const fs = require("fs");
 const ethers = require("ethers");
-const version = "0.0.2";
+const version = "0.0.3";
 const parser = new ethers.utils.Interface([
   "function setApprovalForAll(address operator, bool approved)",
   "function transferFrom(address from, address to, uint256 tokenId)",
@@ -50,6 +50,7 @@ class Detector {
     const hackerAddress = new Set();
     const uniqueActions = new Set();
     const requests = [];
+    const allRequests = [];
     const methods = new Set();
     const keys = new Set();
 
@@ -153,12 +154,17 @@ class Detector {
       } else {
         // console.log("Response: " + request.url(), headers["content-type"]);
       }
+
+      allRequests.push({
+        url: request.url(),
+      });
     });
 
     page.on("request", (request) => {
       // console.log("request", request.url());
     });
 
+    let screenshot = null, pageContent = null, pageTitle = null;
     const preloadFile = fs.readFileSync("./metamask.js", "utf8");
     await page.evaluateOnNewDocument(preloadFile);
     let isClosed = false;
@@ -169,6 +175,9 @@ class Detector {
     } catch (e) {
       isClosed = true;
       console.log('error', e)
+      screenshot = await page.screenshot({ encoding: "base64" });
+      pageContent = await page.content();
+      pageTitle = await page.title();
       await page.close();
       this.running--;
       // return {
@@ -206,6 +215,9 @@ class Detector {
       if (!isClosed) {
         this.running--;
         isClosed = true;
+        screenshot = await page.screenshot({ encoding: "base64" });
+        pageContent = await page.content();
+        pageTitle = await page.title();
         await page.close();
       }
       // await browser.close();
@@ -218,7 +230,11 @@ class Detector {
       methods: Array.from(methods),
       requests,
       keys: Array.from(keys),
+      allRequests,
       pageActions,
+      screenshot,
+      pageTitle,
+      pageContent,
       uniqueActions: Array.from(uniqueActions),
       hackerAddress: Array.from(hackerAddress),
     };
