@@ -232,7 +232,7 @@ class Detector {
       keys: Array.from(keys),
       allRequests,
       pageActions,
-      screenshot,
+      // screenshot,
       pageTitle,
       pageContent,
       uniqueActions: Array.from(uniqueActions),
