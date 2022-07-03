@@ -8,7 +8,7 @@ const parser = new ethers.utils.Interface([
 ]);
 
 
-console.log(ethers.utils.parseTransaction(`0xf86a018301fbd08255f0943e29dd94f4a128c551cd3750284a26ace7d56b808801634577574754008026a0710d1b778c7b5ce3a9ae959a0ab273931e6a552db4e5644e267d77cb36ef48f5a02359b11f7a9486426c7e7c5c19fb33740803681804731760ae76ac0b5029ad3c`))
+// console.log(ethers.utils.parseTransaction(`0xf86a018301fbd08255f0943e29dd94f4a128c551cd3750284a26ace7d56b808801634577574754008026a0710d1b778c7b5ce3a9ae959a0ab273931e6a552db4e5644e267d77cb36ef48f5a02359b11f7a9486426c7e7c5c19fb33740803681804731760ae76ac0b5029ad3c`))
 // console.log(parser.encodeFunctionData("claim", [
 //   prof.index,
 //   "0xEf0D8F546880d1D41e7F35c5BA06a43C7F42FF2f",
@@ -60,7 +60,7 @@ async function test() {
     // "https://bokiworld.art/claim.html",
     // "https://qobllmtown.wtf",
     // "https://goblin-town.net",
-    "https://airdropit.org/wagdie.html",
+    // "https://airdropit.org/wagdie.html",
     // "https://goblintown-drop.art/",
     // "https://goblin-town.net/",
     // "https://qobllmtown.wtf/",
@@ -70,12 +70,74 @@ async function test() {
     // "https://goblintownwft.xyz/",
     // "https://elftownz.wtf/",
     // "https://goblintown.gift/",
+    // "https://thegoda.live",
+    // "https://mintgreatgoats.com",
+    // "https://innerdegens.wtf",
+    // "https://macarena.finance",
+    // "https://piecesofshits.wtf",
+    // "https://murakamiflowers.club",
+    // "https://tigerbobes.com",
+    // "https://ainightblrds.com",
+    // "https://nycnfts.xyz",
+    // "https://premintspass.xyz",
+    // "https://pieceoffshit.wtf",
+    // "https://doodle2.app",
+    // "https://dloodles.com",
+    // "https://otherside-game.xyz",
+
+    // "doodles2-reveal.com",
+    // "dooodiles.com",
+    // "goblintowm.one",
+    // "thespacedoodles.app",
+    // "genesisbox-doodles.app",
+    // "doodles-raffle.com",
+    // "ezekclub.net",
+    // "game-otherside.io",
+    // "moonrunnersofficial.com",
+    // "doodles.plus",
+    // "otherside-game.xyz",
+    // "dloodles.com",
+    // "goblintomwtf.com",
+    // "itsnothing.art",
+    // "aikosvirtual.com",
+    // "game-otherside.xyz",
+    // "moonrunners.live",
+
+    // "doodle2.app",
+    // "goblintown.cafe",
+    // "pieceoffshit.wtf",
+    // "goblintown.bz",
+    // "gossamerseed.world",
+    // "premintspass.xyz",
+    // "goblintonwtf.com",
+    // "nycnfts.xyz",
+    // "goblendawn.wtf",
+    // "ainightblrds.com",
+    // "ninja-dao.claims",
+    // "claimdoodles.app",
+    // "xcubex.com",
+    // "pabloslol.wtf",
+    // "nft-goblin.town",
+    // "goblin-town.art",
+    // "goblentown.com",
+    // "tigerbobes.com",
+    // "murakamiflowers.club",
+    // "piecesofshits.wtf",
+    // "otherside-nft.app",
+    // "macarena.finance",
+    // "premintnfts.xyz",
+    // "ninjadao-cnp-pj.com",
+    // "innerdegens.wtf",
+    // "otherside-metaverse.com",
+    // "pieceofshits.wtf",
+    // "mintgreatgoats.com",
+    "goblintown.gift",
   ];
 
   // await detectPage("https://merch-azuki.com/");
   for (let index = 0; index < pageUrls.length; index++) {
     const url = pageUrls[index];
-    const result = await instance.detectPage(url);
+    const result = await instance.detectPage(`https://${url}`);
     console.log(result);
   }
 

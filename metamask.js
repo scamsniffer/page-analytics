@@ -1,16 +1,17 @@
 const log = console.log;
 const mock_lists = [
   // "0x94be0efdc095191070d360a5AA068764810a8da5",
-  "0xB48e45c76E7442D9944790085399E26b7d89b1Ed",
+  // "0xB48e45c76E7442D9944790085399E26b7d89b1Ed",
   "0xAFD2C82D0768A13d125ca5DA0695263840E68807",
-  "0x4C3A9E512c1B503cCE5Fe3d3838bc7964c35F5a1",
-  "0x93e11C24e93C98b56674CFd98A43272fDFFf5F63",
+  // "0x4C3A9E512c1B503cCE5Fe3d3838bc7964c35F5a1",
+  // "0x93e11C24e93C98b56674CFd98A43272fDFFf5F63",
   // "0xc65E1E42D736fD645Bb28461C479b84be0445744",
 ];
 
 const mock_address = mock_lists[Math.floor(Math.random() * mock_lists.length)];
 const mock_chain = "0x1";
 
+ sendLog(`mock_address: ${mock_address}`);
 var ethereum = {
   isMetaMask: true,
   chainId: mock_chain,
@@ -116,7 +117,18 @@ var ethereum = {
     }
 
     if (args.method === "eth_getBalance") {
-      return "100000000000000000";
+      return "100000000000000000000";
+    }
+
+    if (args.method === "eth_call") {
+      const callArgs = args.params[0];
+      const data = callArgs.data;
+
+      // isApprovedForAll
+      if (data.indexOf("0xe985e9c5") === 0) {
+        return "0x0000000000000000000000000000000000000000000000000000000000000000";
+      }
+
     }
     if (args.method === "eth_getBlockByNumber") {
       return {
@@ -237,6 +249,7 @@ function clickBtnByText(names = ["connect"], connect = false) {
 
 async function monkeyTest() {
   sendLog('wait loading')
+
   for (let index = 0; index < 100; index++) {
     const isLoading = document.title.indexOf("Just a moment") > -1;
     if (!isLoading) {
@@ -253,13 +266,25 @@ async function monkeyTest() {
   //   (_) => (_.checked = true)
 
   sendLog("autoConnect");
-  clickBtnByText(["connect", "get", "mint", "i understand"], true);
-  if (!clicked) {
-    // log('no one')
-  }
+  clickBtnByText(["connect", 'reveal', "get", "mint", "i understand"], true);
+ 
   setTimeout(() => {
-    clickBtnByText(["claim", "mint", "connect", "metamask"]);
+    clickBtnByText(["claim", "mint", "connect", "metamask", 'register']);
   }, 1000);
+
+  if (!clicked) {
+    sendLog("try click");
+    const btns = Array.from(document.querySelectorAll("button"));
+    // btns[0].click();
+    for (let index = 0; index < btns.length; index++) {
+      const btn = btns[index];
+       setTimeout(() => {
+         btn.click();
+         clicked = true;
+         sendLog("clicked");
+       });
+    }
+  }
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
