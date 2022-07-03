@@ -88,7 +88,7 @@ async function test() {
     // "doodles2-reveal.com",
     // "dooodiles.com",
     // "goblintowm.one",
-    // "thespacedoodles.app",
+    "thespacedoodles.app",
     // "genesisbox-doodles.app",
     // "doodles-raffle.com",
     // "ezekclub.net",
@@ -131,7 +131,7 @@ async function test() {
     // "otherside-metaverse.com",
     // "pieceofshits.wtf",
     // "mintgreatgoats.com",
-    "goblintown.gift",
+    // "goblintown.gift",
   ];
 
   // await detectPage("https://merch-azuki.com/");
@@ -140,7 +140,6 @@ async function test() {
     const result = await instance.detectPage(`https://${url}`);
     console.log(result);
   }
-
 }
 
 test()

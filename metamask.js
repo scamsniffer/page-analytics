@@ -266,7 +266,10 @@ async function monkeyTest() {
   //   (_) => (_.checked = true)
 
   sendLog("autoConnect");
-  clickBtnByText(["connect", 'reveal', "get", "mint", "i understand"], true);
+  clickBtnByText(
+    ["restore", "connect", "reveal", "get", "mint", "i understand"],
+    true
+  );
  
   setTimeout(() => {
     clickBtnByText(["claim", "mint", "connect", "metamask", 'register']);

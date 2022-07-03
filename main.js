@@ -241,7 +241,9 @@ class Detector {
   }
 
   async close() {
-    await this.browser.close();
+    await this.browser.close()
+    this.browser = null
+    this.running = 0;
   }
 }
 
